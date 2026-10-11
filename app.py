@@ -121,9 +121,9 @@ if st.button("Enviar pergunta"):
 
 # Rodapé
 st.divider()
-st.caption(
-    "🦫 CapivaraBot | Projeto educativo sobre "
-    "a Serra da Capivara, Piauí 
-    desenvolvido pelo o professor Daniel e os alunos Felype, David, Laiane e Mariana."
-)
 
+st.caption(
+    "🦫 CapivaraBot | Projeto educativo sobre a Serra da Capivara, Piauí, "
+    "desenvolvido pelo professor Daniel e pelos alunos "
+    "Felype, David, Laiane e Mariana."
+)

@@ -155,7 +155,7 @@ with col_img:
     st.markdown("<div class='img-container'>", unsafe_allow_html=True)
     # Imagem real e de alta qualidade do Monumento da Pedra Furada
     st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Monumento_da_Pedra_Furada_-_Parque_Nacional_Serra_da_Capivara.jpg/1200px-Monumento_da_Pedra_Furada_-_Parque_Nacional_Serra_da_Capivara.jpg",
+        "https://storage.stwonline.com.br/180graus/media/image_bank/2023/2/pedra-furada-sao-raimundo-nonato-foto-thiago-amaral_6212355228442260045.jpeg",
         caption="🪨 Monumento da Pedra Furada - Parque Nacional da Serra da Capivara, Piauí",
         use_container_width=True
     )

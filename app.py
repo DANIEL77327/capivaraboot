@@ -194,7 +194,7 @@ if st.button("Enviar Pergunta 🦫"):
         elif any(w in texto for w in ["origem do nome", "por que se chama", "capivara"]):
             resposta = "🏷️ O nome 'Serra da Capivara' é uma denominação geográfica tradicional da região, associada a acidentes geográficos locais, embora o parque seja mundialmente famoso por seus vestígios pré-históricos."
 
-        elif any(w in TEXTO_LOWER := [texto] if False else texto, "horário" in texto or "funciona" in texto or "abertura" in texto):
+        elif any(w in texto for w in ["horário", "funciona", "abertura"]):
             resposta = "⏰ O parque geralmente fica aberto diariamente para visitação pública em horário diurno, mas os horários específicos de portarias e museus devem ser confirmados com antecedência."
 
         elif any(w in texto for w in ["chuva", "chuvosa", "inverno"]):

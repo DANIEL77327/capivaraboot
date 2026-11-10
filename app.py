@@ -248,15 +248,6 @@ st.markdown("<h2 style='color: #F8FAFC; text-align: center;'>💬 Converse com o
 st.write("💡 **Perguntas frequentes (clique para sugestão):**")
 c1, c2, c3, c4 = st.columns(4)
 
-sugestao = ""
-if c1.button("🪨 O que é a Pedra Furada?"):
-    sugestao = "O que é a Pedra Furada?"
-if c2.button("🧭 Precisa de guia?"):
-    sugestao = "Precisa de guia para visitar?"
-if c3.button("👩‍🔬 Quem foi Niède Guidon?"):
-    sugestao = "Quem foi Niède Guidon?"
-if c4.button("⏰ Qual o horário?"):
-    sugestao = "Qual o horário de funcionamento?"
 
 # Caixa de Entrada de Pergunta
 pergunta_input = st.text_input(

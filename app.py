@@ -271,30 +271,23 @@ if st.button("Enviar Pergunta 🦫", use_container_width=True):
         # Lógica de Mapeamento das Respostas (>30 Perguntas/Palavras-chave)
         resposta = None
 
-        if any(w in texto for w in ["onde fica", "localização", "estado", "cidade próxima", "endereço"]):
+        if any(w in texto for w in ["onde fica o parque?", "localização", "estado", "cidade próxima", "endereço"]):
             resposta = "📍 O Parque fica no sudeste do Piauí, tendo como principais cidades de apoio São Raimundo Nonato, Coronel José Dias e João Costa."
         
-        elif any(w in texto for w in ["pedra furada", "cartão postal", "monumento"]):
-            resposta = "🪨 A Pedra Furada é o principal cartão-postal do parque, uma imensa formação rochosa arenítica com um grande furo central esculpido pela natureza."
+        elif any(w in texto for w in ["como chegar no parque?, onde cehgar?, como ir?"]):
+            resposta = "podemos ir de carro,onibus,e entre outros transportes."
 
-        elif any(w in texto for w in ["niède guidon", "criadora", "fundadora", "arqueóloga"]):
-            resposta = "👩‍🔬 Niède Guidon foi a arqueóloga franco-brasileira fundamental para a criação do parque e para a preservação e estudo de seus tesouros históricos."
+         elif any(w in texto for w in ["Quais os melhores horarios para visitar?, visita, horario, parque"]):
+            resposta = "pela manha as 8:00 as 13:00 e a tarde das 14:00 as 18:00"
 
-        elif any(w in texto for w in ["patrimônio", "unesco", "título"]):
-            resposta = "🏆 Sim! O Parque Nacional da Serra da Capivara foi declarado Patrimônio Cultural da Humanidade pela UNESCO em 1991."
+        elif any(w in texto for w in ["O que pode levar para o parque?, o que levar, o que pode levar"]):
+            resposta = "podem levar bebidas,alimentos,utencilios de uso pessoal e entre outros " 
+            re
+        elif any(w in texto for w in ["tem guia?,pode ir sem guias,como saber os caminhos,trilhas]):
+            resposta = "Sim.Existe varios guias dentro do parque,eles ajudam a guiar seu percurso dentro de cada trilha do parque,para saber de todos as trilhas e caminhos"
 
-        elif any(w in texto for w in ["museu do homem americano", "museu", "fumdham"]):
-            resposta = "🏛️ O Museu do Homem Americano, gerido pela FUMDHAM em São Raimundo Nonato, exibe fósseis, ossadas e peças arqueológicas incríveis encontradas no parque."
-
-        elif any(w in texto for w in ["pinturas rupestres", "desenhos", "arte rupestre", "o que são"]):
-            resposta = "🎨 As pinturas rupestres são registros milenares feitos pelos primeiros grupos humanos nas paredes de rocha, retratando rituais, caçadas e a fauna da época."
-
-        elif any(w in texto for w in ["idade", "anos", "antiguidade", "quanto tempo"]):
-            resposta = "⏳ Algumas pesquisas indicam vestígios da presença humana na região que datam de dezenas de milhares de anos atrás."
-
-        elif any(w in texto for w in ["clima", "temperatura", "calor", "seca"]):
-            resposta = "☀️ O clima é semiárido, caracterizado por altas temperaturas durante a maior parte do ano e uma estação seca marcante."
-
+         elif any(w in texto for w in ["Dentro do parque hà algum museu, hotel,casa,lugar para ficar?"]):
+            resposta = "Sim.A outros museus,como o da natureza.Hà um hotel na entrada do parque,existe lugar para fica,sim"
         elif any(w in texto for w in ["melhor época", "quando ir", "meses", "época do ano"]):
             resposta = "📅 A melhor época para visitar é durante a estação mais amena ou seca (entre maio e dezembro), quando as chuvas são escassas e o acesso às trilhas fica facilitado."
 

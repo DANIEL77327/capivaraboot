@@ -23,7 +23,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-611if pergunta:
+elif pergunta:
 Exit 1
 Traceback (most recent call last):
   File "/box/main.py", line 2, in <module>

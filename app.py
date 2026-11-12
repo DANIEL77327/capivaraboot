@@ -520,10 +520,12 @@ BANCO DE CONHECIMENTO DO PROJETO:
         return "Não consegui formular uma resposta agora. Tente novamente.", True
 
     except Exception as erro:
-        st.error(f"Erro da IA: {type(erro).__name__}: {erro}")
-        return (
-            "Não consegui gerar uma resposta. Confira o erro acima.",
-            False
+    st.error(f"ERRO DA INTELIGÊNCIA ARTIFICIAL: {erro}")
+    return (
+        "Não consegui gerar uma resposta. "
+        "Confira o erro exibido acima.",
+        False
+    )
         )
 
 

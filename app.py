@@ -226,6 +226,7 @@ BANCO = [
      "Não deixe lixo, respeite as trilhas, não toque nas pinturas rupestres e não retire pedras, plantas ou outros elementos naturais."),
 ]
 
+
 # ============================================================
 # 5. FUNCOES
 # ============================================================
@@ -247,7 +248,7 @@ def responder(pergunta):
     if not texto:
         return "Escreva uma pergunta para começar."
 
-    if texto in {"oi", "ola", "bom dia", "boa tarde", "boa noite", " tudo bem"}:
+    if texto in {"oi", "ola", "bom dia", "boa tarde", "boa noite", "tudo bem"}:
         return (
             "Olá! Seja bem-vindo ao CapivaraBot! 🐾 "
             "Estou aqui para ajudar você a conhecer a Serra da Capivara. "
@@ -296,15 +297,16 @@ def obter_cliente_ia():
 def responder_com_ia():
     pergunta_atual = st.session_state.mensagens[-1]["content"]
 
-    # Saudações simples são respondidas imediatamente pelo próprio projeto.
+    # Saudações simples são respondidas pelo próprio projeto.
     if normalizar(pergunta_atual) in {
         "oi", "ola", "bom dia", "boa tarde", "boa noite"
     }:
-        return responder(pergunta_atual), False
+        return responder(pergunta_atual), "Banco"
 
     cliente = obter_cliente_ia()
+
     if cliente is None:
-        return responder(pergunta_atual), False
+        return responder(pergunta_atual), "Banco"
 
     base_conhecimento = "\n\n".join(
         f"Categoria: {categoria}\nPergunta: {titulo}\nResposta: {resposta}"
@@ -344,15 +346,17 @@ Use este banco de conhecimento como referência:
         )
 
         texto = (resposta.output_text or "").strip()
-        if texto:
-            return texto, True
 
-        return responder(pergunta_atual), False
+        if texto:
+            return texto, "IA"
+
+        st.warning("A IA não retornou um texto. O banco de perguntas será usado.")
+        return responder(pergunta_atual), "Banco"
 
     except Exception as erro:
         st.error("A inteligência artificial não conseguiu responder.")
         st.caption(f"Detalhe técnico: {type(erro).__name__}: {erro}")
-        return responder(pergunta_atual), False
+        return responder(pergunta_atual), "Banco"
 
 
 # ============================================================
@@ -374,6 +378,7 @@ if "mensagens" not in st.session_state:
             ),
         }
     ]
+
 
 # ============================================================
 # 7. TELA INICIAL
@@ -443,15 +448,18 @@ if st.session_state.pagina == "inicio":
     )
     st.caption("Projeto educativo • Piauí • Brasil")
 
+
 # ============================================================
 # 8. TELA DO CHATBOT
 # ============================================================
 
 elif st.session_state.pagina == "chatbot":
     topo1, topo2 = st.columns([4, 1])
+
     with topo1:
         st.title("🐾 CapivaraBot")
         st.caption("Explore a Serra da Capivara com nosso guia virtual.")
+
     with topo2:
         if st.button("← Início", use_container_width=True):
             st.session_state.pagina = "inicio"
@@ -465,9 +473,11 @@ elif st.session_state.pagina == "chatbot":
     )
 
     cliente_disponivel = obter_cliente_ia() is not None
+
     if cliente_disponivel:
         st.markdown(
-            '<p class="ia-info">✦ Chave da inteligência artificial encontrada</p>',
+            '<p class="ia-info">✦ Chave da IA encontrada. '
+            'A conexão será verificada ao enviar uma pergunta.</p>',
             unsafe_allow_html=True,
         )
     else:
@@ -476,9 +486,18 @@ elif st.session_state.pagina == "chatbot":
             "O banco de respostas do CapivaraBot continuará funcionando."
         )
 
+    # Exibe o histórico e identifica a origem de cada resposta.
     for mensagem in st.session_state.mensagens:
         with st.chat_message(mensagem["role"]):
             st.markdown(mensagem["content"])
+
+            if mensagem["role"] == "assistant":
+                origem = mensagem.get("origem")
+
+                if origem == "IA":
+                    st.caption("✦ Resposta gerada pela Inteligência Artificial")
+                elif origem == "Banco":
+                    st.caption("📚 Resposta do banco de perguntas")
 
     pergunta = st.chat_input("Ex.: O que são pinturas rupestres?")
 
@@ -489,15 +508,18 @@ elif st.session_state.pagina == "chatbot":
         })
 
         with st.spinner("O CapivaraBot está preparando sua resposta..."):
-            resposta, usou_ia = responder_com_ia()
+            resposta, origem = responder_com_ia()
 
         st.session_state.mensagens.append({
             "role": "assistant",
             "content": resposta,
+            "origem": origem,
         })
+
         st.rerun()
 
     acoes1, acoes2 = st.columns(2)
+
     with acoes1:
         if st.button("🗑️ Limpar conversa", use_container_width=True):
             st.session_state.mensagens = [
@@ -517,8 +539,10 @@ elif st.session_state.pagina == "chatbot":
     st.markdown("## Explore por assunto")
 
     categorias = ["Turismo", "História", "Arqueologia", "Natureza", "Visitação"]
+
     for categoria in categorias:
         itens = [item for item in BANCO if item[0] == categoria]
+
         with st.expander(f"📚 {categoria}"):
             for _, titulo, _, resposta in itens:
                 st.markdown(f"**{titulo}**")

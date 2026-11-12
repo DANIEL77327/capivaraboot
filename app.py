@@ -3,7 +3,11 @@ import re
 import unicodedata
 
 import streamlit as st
-from openai import OpenAI
+
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
 
 # ============================================================
 # 1. CONFIGURACAO
@@ -277,9 +281,23 @@ def responder(pergunta):
     )
 
 
-def obter_cliente_ia():
-    chave = None
+def resumir_erro_ia(erro):
+    """Gera uma mensagem técnica útil sem expor uma chave secreta."""
+    mensagem = f"{type(erro).__name__}: {erro}"
+    mensagem = re.sub(r"sk-[A-Za-z0-9_-]{10,}", "[CHAVE OCULTADA]", mensagem)
+    return mensagem[:700]
 
+
+def obter_cliente_ia():
+    """Obtém a chave dos Secrets do Streamlit ou das variáveis de ambiente."""
+    if OpenAI is None:
+        st.session_state.erro_ia = (
+            "A biblioteca 'openai' não está instalada. "
+            "Adicione openai>=1.0.0 ao requirements.txt."
+        )
+        return None
+
+    chave = None
     try:
         chave = st.secrets.get("OPENAI_API_KEY")
     except Exception:
@@ -288,23 +306,33 @@ def obter_cliente_ia():
     if not chave:
         chave = os.getenv("OPENAI_API_KEY")
 
-    if not chave:
+    if not chave or not str(chave).strip():
+        st.session_state.erro_ia = (
+            "A chave OPENAI_API_KEY não foi encontrada nos Secrets "
+            "do Streamlit."
+        )
         return None
 
-    return OpenAI(api_key=chave)
+    try:
+        return OpenAI(api_key=str(chave).strip(), timeout=45.0, max_retries=1)
+    except Exception as erro:
+        st.session_state.erro_ia = resumir_erro_ia(erro)
+        return None
 
 
 def responder_com_ia():
+    """Tenta responder com IA; se falhar, usa o banco e guarda o motivo."""
+    st.session_state.erro_ia = ""
     pergunta_atual = st.session_state.mensagens[-1]["content"]
+    pergunta_normalizada = normalizar(pergunta_atual)
 
-    # Saudações simples são respondidas pelo próprio projeto.
-    if normalizar(pergunta_atual) in {
-        "oi", "ola", "bom dia", "boa tarde", "boa noite"
+    # Saudações simples podem ser respondidas diretamente pelo projeto.
+    if pergunta_normalizada in {
+        "oi", "ola", "bom dia", "boa tarde", "boa noite", "tudo bem"
     }:
         return responder(pergunta_atual), "Banco"
 
     cliente = obter_cliente_ia()
-
     if cliente is None:
         return responder(pergunta_atual), "Banco"
 
@@ -332,10 +360,10 @@ Use este banco de conhecimento como referência:
 
     historico = []
     for mensagem in st.session_state.mensagens[-12:]:
-        if mensagem["role"] in ("user", "assistant"):
+        if mensagem.get("role") in ("user", "assistant"):
             historico.append({
                 "role": mensagem["role"],
-                "content": mensagem["content"],
+                "content": mensagem.get("content", ""),
             })
 
     try:
@@ -345,17 +373,18 @@ Use este banco de conhecimento como referência:
             input=historico,
         )
 
-        texto = (resposta.output_text or "").strip()
-
+        texto = (getattr(resposta, "output_text", None) or "").strip()
         if texto:
             return texto, "IA"
 
-        st.warning("A IA não retornou um texto. O banco de perguntas será usado.")
+        st.session_state.erro_ia = (
+            "A API respondeu, mas não retornou texto. "
+            "Tente enviar a pergunta novamente."
+        )
         return responder(pergunta_atual), "Banco"
 
     except Exception as erro:
-        st.error("A inteligência artificial não conseguiu responder.")
-        st.caption(f"Detalhe técnico: {type(erro).__name__}: {erro}")
+        st.session_state.erro_ia = resumir_erro_ia(erro)
         return responder(pergunta_atual), "Banco"
 
 
@@ -365,6 +394,9 @@ Use este banco de conhecimento como referência:
 
 if "pagina" not in st.session_state:
     st.session_state.pagina = "inicio"
+
+if "erro_ia" not in st.session_state:
+    st.session_state.erro_ia = ""
 
 if "mensagens" not in st.session_state:
     st.session_state.mensagens = [
@@ -476,14 +508,12 @@ elif st.session_state.pagina == "chatbot":
 
     if cliente_disponivel:
         st.markdown(
-            '<p class="ia-info">✦ Chave da IA encontrada. '
-            'A conexão será verificada ao enviar uma pergunta.</p>',
+            '<p class="ia-info">✦ Chave encontrada. A conexão será testada ao enviar uma pergunta.</p>',
             unsafe_allow_html=True,
         )
     else:
         st.info(
-            "A chave da IA ainda não foi configurada. "
-            "O banco de respostas do CapivaraBot continuará funcionando."
+            "A IA ainda não está pronta. O banco de perguntas continua disponível."
         )
 
     # Exibe o histórico e identifica a origem de cada resposta.
@@ -498,6 +528,10 @@ elif st.session_state.pagina == "chatbot":
                     st.caption("✦ Resposta gerada pela Inteligência Artificial")
                 elif origem == "Banco":
                     st.caption("📚 Resposta do banco de perguntas")
+
+    if st.session_state.get("erro_ia"):
+        st.error("A inteligência artificial não conseguiu responder.")
+        st.caption("Detalhe técnico: " + st.session_state.erro_ia)
 
     pergunta = st.chat_input("Ex.: O que são pinturas rupestres?")
 
@@ -522,6 +556,7 @@ elif st.session_state.pagina == "chatbot":
 
     with acoes1:
         if st.button("🗑️ Limpar conversa", use_container_width=True):
+            st.session_state.erro_ia = ""
             st.session_state.mensagens = [
                 {
                     "role": "assistant",

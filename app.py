@@ -498,12 +498,16 @@ BANCO DE CONHECIMENTO DO PROJETO:
 """
 
     # O histórico já contém a pergunta atual.
+    
     historico = []
+
     for mensagem in st.session_state.mensagens[-12:]:
         if mensagem["role"] in ("user", "assistant"):
             historico.append({
                 "role": mensagem["role"],
                 "content": mensagem["content"]
+            })
+
 
 
     try:

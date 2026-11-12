@@ -524,10 +524,12 @@ BANCO DE CONHECIMENTO DO PROJETO:
 
         return "Não consegui formular uma resposta agora. Tente novamente.", True
 
-   st.exception(erro)
+   
+    except Exception as erro:
+        st.exception(erro)
         return "Erro ao conectar com a inteligência artificial.", False
 
-
+    
 
         )
 
